@@ -1,0 +1,11 @@
+spring:
+  r2dbc:
+    url: 'r2dbc:postgresql://127.0.0.1:54321/todo'
+    username: postgres
+    password: postgres
+  liquibase:
+    url: jdbc:postgresql://localhost:54321/todo
+    change-log: classpath:/db/changelog/changelog.xml
+    enabled: on
+    user: postgres
+    password: postgres

@@ -1,0 +1,41 @@
+spring:
+  r2dbc:
+    url: 'r2dbc:postgresql://127.0.0.1:5432/test'
+    username: test
+    password: test
+  liquibase:
+    url: jdbc:postgresql://localhost:5432/test
+    change-log: classpath:/db/changelog/changelog.xml
+    enabled: on
+    user: test
+    password: test
+  mvc:
+    throw-exception-if-no-handler-found: true
+  web:
+    resources:
+      add-mappings: false
+
+server:
+  shutdown: graceful
+  compression:
+    enabled: true
+  error:
+    whitelabel:
+      enabled: false
+  port: 8080
+  forward-headers-strategy: native
+
+management:
+  endpoints:
+    web:
+      base-path: /admin
+      exposure:
+        include: "live, health, prometheus"
+    enabled-by-default: false
+  endpoint:
+    health:
+      enabled: true
+    prometheus:
+      enabled: true
+  server:
+    add-application-context-header: false

@@ -2,6 +2,7 @@ package todoservice.todo
 
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Component
+import org.springframework.transaction.annotation.Transactional
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import todoservice.todo.persistence.TaskEntity
@@ -14,6 +15,7 @@ class TodoUseCases(
     private val taskRepository: TaskRepository
 ) {
 
+    @Transactional(readOnly = true)
     fun findAll(pageable: Pageable): Flux<Todo> {
         return todoRepository.findBy(pageable).flatMap { task ->
             taskRepository.findByTodoId(task.id)
@@ -21,6 +23,7 @@ class TodoUseCases(
         }
     }
 
+    @Transactional(readOnly = true)
     fun findById(id: UUID): Mono<Todo> {
         return todoRepository.findById(id).flatMap { task ->
             taskRepository.findByTodoId(task.id)
@@ -28,11 +31,13 @@ class TodoUseCases(
         }
     }
 
+    @Transactional
     fun save(todo: Todo): Mono<Todo> {
         return todoRepository.save(mapToEntity(todo))
             .flatMap { saved -> updateTasks(todo, saved) }
     }
 
+    @Transactional
     fun update(todo: Todo): Mono<Todo> {
         return todoRepository.findById(todo.id).flatMap {
             todoRepository.save(updateEntity(it, todo)).flatMap { saved ->

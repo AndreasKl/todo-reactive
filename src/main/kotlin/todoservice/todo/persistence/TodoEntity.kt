@@ -9,9 +9,7 @@ import java.util.UUID
 data class TodoEntity(
     @Id val id: UUID = UUID.randomUUID(),
     val name: String,
-    val description: String
-) {
-    @Version
-    var version : Long = 0
-}
+    val description: String,
+    @Version var version : Long = 0
+)
 

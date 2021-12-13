@@ -9,8 +9,6 @@ import java.util.UUID
 data class TaskEntity(
     @Id val id: UUID = UUID.randomUUID(),
     val todoId: UUID,
-    val name: String
-) {
-    @Version
-    var version: Long = 0
-}
+    val name: String,
+    @Version var version: Long = 0
+)

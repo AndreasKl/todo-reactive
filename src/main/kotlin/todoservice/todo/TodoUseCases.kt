@@ -1,5 +1,6 @@
 package todoservice.todo
 
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
@@ -9,14 +10,12 @@ import java.util.UUID
 
 @Component
 class TodoUseCases(
-    private val taskRepository: TaskRepository,
-    private val todoRepository: TodoRepository
+    private val todoRepository: TodoRepository,
+    private val taskRepository: TaskRepository
 ) {
 
-    // FIXME: Consider moving the mapping code where it belongs to.
-
-    fun findAll(): Flux<Todo> {
-        return todoRepository.findAll().flatMap { task ->
+    fun findAll(pageable: Pageable): Flux<Todo> {
+        return todoRepository.findBy(pageable).flatMap { task ->
             taskRepository.findByTodoId(task.id)
                 .collectList().map { mapToModel(task, it) }
         }
@@ -29,13 +28,38 @@ class TodoUseCases(
         }
     }
 
-    fun createTodo(todo: Todo): Mono<Todo> {
-        val save = todoRepository.save(mapToEntity(todo))
-        return save.flatMap { saved ->
-            val tasks = todo.tasks.map { mapToEntity(saved, it) }
-            taskRepository.saveAll(tasks).collectList()
-                .map { mapToModel(saved, it) }
+    fun save(todo: Todo): Mono<Todo> {
+        return todoRepository.save(mapToEntity(todo))
+            .flatMap { saved -> updateTasks(todo, saved) }
+    }
+
+    fun update(todo: Todo): Mono<Todo> {
+        return todoRepository.findById(todo.id).flatMap {
+            todoRepository.save(updateEntity(it, todo)).flatMap { saved ->
+                removeAndUpdateTasks(saved, todo)
+            }
         }
+    }
+
+    private fun removeAndUpdateTasks(
+        saved: TodoEntity,
+        todo: Todo
+    ): Mono<Todo> {
+        return taskRepository.deleteAllByTodoId(saved.id)
+            .flatMap { updateTasks(todo, saved) }
+    }
+
+    private fun updateTasks(
+        todo: Todo,
+        saved: TodoEntity
+    ): Mono<Todo> {
+        val tasks = todo.tasks.map { mapToEntity(saved, it) }
+        return taskRepository.saveAll(tasks).collectList()
+            .map { mapToModel(saved, it) }
+    }
+
+    private fun updateEntity(saved: TodoEntity, new: Todo): TodoEntity {
+        return saved.copy(name = new.name, description = new.description)
     }
 
     private fun mapToModel(todo: TodoEntity, tasks: List<TaskEntity>) =
@@ -49,14 +73,14 @@ class TodoUseCases(
     private fun mapToModel(tasks: List<TaskEntity>) =
         tasks.map { mapToModel(it) }
 
-    private fun mapToModel(it: TaskEntity) =
-        Task(id = it.id, name = it.name)
+    private fun mapToModel(taskEntity: TaskEntity) =
+        Task(id = taskEntity.id, name = taskEntity.name)
 
     private fun mapToEntity(todo: Todo) =
         TodoEntity(id = todo.id, name = todo.name, description = todo.description)
 
-    private fun mapToEntity(todo: TodoEntity, task: Task) =
-        TaskEntity(id = task.id, todoId = todo.id, name = task.name)
+    private fun mapToEntity(todoEntity: TodoEntity, task: Task) =
+        TaskEntity(id = task.id, todoId = todoEntity.id, name = task.name)
 
 
     data class Todo(

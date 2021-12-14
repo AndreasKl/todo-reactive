@@ -26,7 +26,7 @@
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="todo_id" type="uuid">
-                <constraints deferrable="true" foreignKeyName="fk_todo_id_task_todo_id" references="todo(id)"/>
+                <constraints deferrable="true" foreignKeyName="fk_todo_id_task_todo_id" references="todo(id)" deleteCascade="true"/>
             </column>
             <column name="version" type="bigint">
                 <constraints nullable="false"/>

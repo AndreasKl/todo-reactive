@@ -52,9 +52,9 @@ internal class TodoUseCasesTest {
     fun createNewTodo() {
         val todoUseCases = todoUseCases()
         val todo = todoUseCases.save(
-            TodoUseCases.Todo(
+            Todo(
                 name = "__todo__", description = "__todo_desc__", tasks = listOf(
-                    TodoUseCases.Task(name = "__task__")
+                    Task(name = "__task__")
                 )
             )
         ).`as`(StepVerifier::create)
@@ -65,9 +65,9 @@ internal class TodoUseCasesTest {
 
     private fun todoUseCases() = TodoUseCases(todoRepository(), taskRepositoryWithTaskForEntityA())
 
-    private fun assertTodo(name: String, it: TodoUseCases.Todo) {
+    private fun assertTodo(name: String, it: Todo) {
         assertThat(it)
-            .extracting(TodoUseCases.Todo::name, TodoUseCases.Todo::description)
+            .extracting(Todo::name, Todo::description)
             .containsExactly(name, "__description__")
     }
 

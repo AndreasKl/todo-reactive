@@ -46,6 +46,11 @@ class TodoUseCases(
         }
     }
 
+    @Transactional
+    fun delete(id: UUID): Mono<Void> {
+        return todoRepository.deleteById(id)
+    }
+
     private fun removeAndUpdateTasks(
         saved: TodoEntity,
         todo: Todo
@@ -87,16 +92,4 @@ class TodoUseCases(
     private fun mapToEntity(todoEntity: TodoEntity, task: Task) =
         TaskEntity(id = task.id, todoId = todoEntity.id, name = task.name)
 
-
-    data class Todo(
-        val id: UUID = UUID.randomUUID(),
-        val name: String,
-        val description: String,
-        val tasks: List<Task>
-    )
-
-    data class Task(
-        val id: UUID = UUID.randomUUID(),
-        val name: String,
-    )
 }

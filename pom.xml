@@ -18,7 +18,7 @@
         <kotlin.version>1.6.10</kotlin.version>
 
         <!-- build plugins -->
-        <jacoco-maven-plugin.version>0.8.7</jacoco-maven-plugin.version>
+        <jacoco-maven-plugin.version>0.8.8</jacoco-maven-plugin.version>
     </properties>
     <dependencies>
         <dependency>
